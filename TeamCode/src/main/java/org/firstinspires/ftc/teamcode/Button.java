@@ -11,7 +11,7 @@ public class Button {
     public Button() {}
 
     /**
-     * please run at start of loops
+     * please run at start of main loop (or before it is ever used in the main loop)
      * note: if down on first call, will return a true onPress value
      * @param currPressed
      * @return

@@ -7,18 +7,14 @@ import com.qualcomm.robotcore.hardware.IMU;
 @Config
 public class DriveSubsystem {
 
-    DcMotor left, right;
-
-    public static double LEFT_POWER_FACTOR;
-    public static double RIGHT_POWER_FACTOR;
-
+    Motor left, right;
 
     /**
      * Initializes a DriveSubsystem
      * @param left A left-side mounted DcMotor with positive power assumed as "forward"
      * @param right A right-side mounted DcMotor with positive power assumed as "forward"
      */
-    public DriveSubsystem(DcMotor left, DcMotor right) {
+    public DriveSubsystem(Motor left, Motor right) {
         this.left = left;
         this.right = right;
     }
@@ -28,8 +24,8 @@ public class DriveSubsystem {
      * @param power Positive is counterclockwise, negative is clockwise, in [-1, 1]
      */
     public void rotateByPowers(double power) {
-        left.setPower(-power * LEFT_POWER_FACTOR);
-        right.setPower(power * RIGHT_POWER_FACTOR);
+        left.setPower(-power);
+        right.setPower(power);
     }
 
     /**
@@ -37,8 +33,8 @@ public class DriveSubsystem {
      * @param power Positive is forward, negative is backward, in [-1, 1]
      */
     public void forwardByPowers(double power) {
-        left.setPower(power * LEFT_POWER_FACTOR);
-        right.setPower(power * RIGHT_POWER_FACTOR);
+        left.setPower(power);
+        right.setPower(power);
     }
 
     /**
@@ -47,8 +43,8 @@ public class DriveSubsystem {
      * @param powerRight Positive is forward, negative is backward, in [-1, 1], for right motor
      */
     public void motorsByPowers(double powerLeft, double powerRight) {
-        left.setPower(powerLeft * LEFT_POWER_FACTOR);
-        right.setPower(powerRight * RIGHT_POWER_FACTOR);
+        left.setPower(powerLeft);
+        right.setPower(powerRight);
     }
 
 }

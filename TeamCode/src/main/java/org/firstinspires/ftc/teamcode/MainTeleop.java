@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.scaleOperators.Clamp;
+import org.firstinspires.ftc.teamcode.scaleOperators.Rescale;
 
 import java.util.List;
 
@@ -35,9 +37,19 @@ public class MainTeleop extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DcMotor left = hardwareMap.get(DcMotor.class, "left");
-        DcMotor right = hardwareMap.get(DcMotor.class, "right");
-        right.setDirection(DcMotorSimple.Direction.REVERSE);
+        Motor left = new Motor.Builder(hardwareMap, "left")
+                .setOperators(
+                        new Rescale(LEFT_POWER_FACTOR),
+                        new Clamp(-LEFT_POWER_FACTOR, LEFT_POWER_FACTOR)
+                )
+                .build();
+        Motor right = new Motor.Builder(hardwareMap, "left")
+                .setOperators(
+                        new Rescale(RIGHT_POWER_FACTOR),
+                        new Clamp(-RIGHT_POWER_FACTOR, RIGHT_POWER_FACTOR)
+                )
+                .invert()
+                .build();
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100);
@@ -107,7 +119,7 @@ public class MainTeleop extends LinearOpMode {
             // SET DRIVE MACRO //
             /////////////////////
 
-            // Simple forward left motion
+            // Simple forward left motion macro
             if (square1.onPress) {
                 macroTargetRads = Math.PI / 4;
                 macroTargetX = currentX - 10;
@@ -115,7 +127,7 @@ public class MainTeleop extends LinearOpMode {
                 macroActive = true;
             }
 
-            // Align to apriltag
+            // Align to apriltag macro
             if (triangle1.onPress) {
                 LLResult result = limelight.getLatestResult();
                 if (result != null && result.isValid()) {
@@ -151,9 +163,9 @@ public class MainTeleop extends LinearOpMode {
 
             drive.motorsByPowers(leftPower, rightPower);
 
-            /////////////////////////
-            // EXECUTE DRIVE MACRO //
-            /////////////////////////
+            //////////////////////////
+            // EXECUTE DRIVE MACROS //
+            //////////////////////////
 
             if (macroActive) {
                 double e_theta = macroTargetRads - currentRads;
@@ -176,7 +188,6 @@ public class MainTeleop extends LinearOpMode {
                     if (Math.abs(e_theta) > MACRO_RADS_TOLERANCE / 2.0) {  // div. 2 for extra precision
                         // angle align
 
-                        // potential out of bounds but whatever
                         drive.rotateByPowers(Ksqu_ROT * Math.signum(e_theta) * Math.sqrt(Math.abs(e_theta)));
                     } else {
                         // angle aligned
