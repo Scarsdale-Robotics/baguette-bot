@@ -28,8 +28,8 @@ public class MainTeleop extends LinearOpMode {
     public static double MACRO_RADS_TOLERANCE = 0.17;  // \pm 0.17 tolerance
     public static double MACRO_DISP_TOLERANCE = 2;  // \pm 2 inches (displacement)
 
-    public static double Ksqu_ROT = 0.5;
-    public static double Ksqu_TRANS = 0.5;
+    public static double Ksqu_ROT = 0.3;
+    public static double Ksqu_TRANS = 0.3;
 
     private static double ENCODER_CPR = 4096; // Optii v1
     private static double ODOM_DIAMETER = 1.37795276; // inches
@@ -43,7 +43,7 @@ public class MainTeleop extends LinearOpMode {
                         new Clamp(-LEFT_POWER_FACTOR, LEFT_POWER_FACTOR)
                 )
                 .build();
-        Motor right = new Motor.Builder(hardwareMap, "left")
+        Motor right = new Motor.Builder(hardwareMap, "right")
                 .setOperators(
                         new Rescale(RIGHT_POWER_FACTOR),
                         new Clamp(-RIGHT_POWER_FACTOR, RIGHT_POWER_FACTOR)
@@ -121,7 +121,7 @@ public class MainTeleop extends LinearOpMode {
 
             // Simple forward left motion macro
             if (square1.onPress) {
-                macroTargetRads = Math.PI / 4;
+                macroTargetRads = 0;
                 macroTargetX = currentX - 10;
                 macroTargetY = currentY + 10;
                 macroActive = true;
@@ -173,25 +173,17 @@ public class MainTeleop extends LinearOpMode {
                 double e_dy = macroTargetY - currentY;
                 double e_ds = Math.hypot(e_dx, e_dy);
 
-                telemetry.addData("e_theta", e_theta);
-                telemetry.addData("e_ds", e_ds);
-
-                telemetry.addData("macroTargetX", macroTargetX);
-                telemetry.addData("macroTargetY", macroTargetY);
-                telemetry.addData("macroTargetRads", macroTargetRads);
-
                 if (Math.abs(e_ds) > MACRO_DISP_TOLERANCE) {
                     // translation
                     double approachRads = Math.atan2(e_dx, e_dy);
 
                     e_theta = approachRads - currentRads;
-                    if (Math.abs(e_theta) > MACRO_RADS_TOLERANCE / 2.0) {  // div. 2 for extra precision
+                    if (Math.abs(e_theta) > MACRO_RADS_TOLERANCE) {  // div. 2 for extra precision
                         // angle align
-
-                        drive.rotateByPowers(Ksqu_ROT * Math.signum(e_theta) * Math.sqrt(Math.abs(e_theta)));
+                        drive.rotateByPowers(-Ksqu_ROT * Math.signum(e_theta) * Math.sqrt(Math.abs(e_theta)));
                     } else {
                         // angle aligned
-                        drive.forwardByPowers(Ksqu_TRANS * Math.sqrt(Math.abs(e_ds)));
+                        drive.forwardByPowers(-Ksqu_TRANS * Math.sqrt(Math.abs(e_ds)));
                     }
 
                 } else if (Math.abs(e_theta) > MACRO_RADS_TOLERANCE) {
@@ -200,6 +192,13 @@ public class MainTeleop extends LinearOpMode {
                 } else {
                     macroActive = false;
                 }
+
+                telemetry.addData("e_theta", e_theta);
+                telemetry.addData("e_ds", e_ds);
+
+                telemetry.addData("macroTargetX", macroTargetX);
+                telemetry.addData("macroTargetY", macroTargetY);
+                telemetry.addData("macroTargetRads", macroTargetRads);
             }
 
             telemetry.addData("leftEnc", left.getCurrentPosition());

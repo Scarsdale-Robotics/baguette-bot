@@ -22,6 +22,7 @@ public class Motor {
         private Motor motor;
 
         public Builder(HardwareMap hardwareMap, String id) {
+            motor = new Motor();
             dcMotor = hardwareMap.get(DcMotor.class, id);
             motor.dcMotor = dcMotor;
         }
@@ -57,7 +58,7 @@ public class Motor {
     }
 
     public double getCurrentPosition(PositionUnit unit) {
-        return dcMotor.getCurrentPosition() * (unit==PositionUnit.INCHES ? TICKS_PER_INCH : 1);
+        return dcMotor.getCurrentPosition() * (unit == PositionUnit.INCHES ? TICKS_PER_INCH : 1);
     }
 
     public void setPower(double power) {
