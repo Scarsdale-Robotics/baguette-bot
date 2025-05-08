@@ -20,7 +20,8 @@ public class DriveSubsystem {
     }
 
     /**
-     * Rotates the robot using powers. Do NOT use with forwardByPowers.
+     * Rotates the robot using powers.
+     * Do NOT call when forwardByPowers is also called.
      * @param power Positive is counterclockwise, negative is clockwise, in [-1, 1]
      */
     public void rotateByPowers(double power) {
@@ -29,7 +30,8 @@ public class DriveSubsystem {
     }
 
     /**
-     * Moves the robot forward/backward using powers. Do NOT use with rotateByPowers.
+     * Moves the robot forward/backward using powers.
+     * Do NOT call when rotateByPowers is also called.
      * @param power Positive is forward, negative is backward, in [-1, 1]
      */
     public void forwardByPowers(double power) {

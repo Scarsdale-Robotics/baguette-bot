@@ -8,7 +8,6 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -28,8 +27,8 @@ public class MainTeleop extends LinearOpMode {
     public static double MACRO_RADS_TOLERANCE = 0.17;  // \pm 0.17 tolerance
     public static double MACRO_DISP_TOLERANCE = 2;  // \pm 2 inches (displacement)
 
-    public static double Ksqu_ROT = 0.3;
-    public static double Ksqu_TRANS = 0.3;
+    public static double Kp_ROT = 0.3;
+    public static double Kp_TRANS = 0.3;
 
     private static double ENCODER_CPR = 4096; // Optii v1
     private static double ODOM_DIAMETER = 1.37795276; // inches
@@ -168,43 +167,83 @@ public class MainTeleop extends LinearOpMode {
             //////////////////////////
 
             if (macroActive) {
-                double e_theta = macroTargetRads - currentRads;
+                double e_theta = backwardsCompatibleAngularError(macroTargetRads, currentRads);
                 double e_dx = macroTargetX - currentX;
                 double e_dy = macroTargetY - currentY;
                 double e_ds = Math.hypot(e_dx, e_dy);
 
+                double approachRads = Math.atan2(e_dy, -e_dx);
+                double e_simple_rads = shortestAngularDifference(approachRads, currentRads);
+                if (e_simple_rads < -Math.PI / 2 || Math.PI / 2 < e_simple_rads) e_ds *= -1;
+
                 if (Math.abs(e_ds) > MACRO_DISP_TOLERANCE) {
                     // translation
-                    double approachRads = Math.atan2(e_dx, e_dy);
+                    e_theta = backwardsCompatibleAngularError(approachRads, currentRads);
 
-                    e_theta = approachRads - currentRads;
                     if (Math.abs(e_theta) > MACRO_RADS_TOLERANCE) {  // div. 2 for extra precision
                         // angle align
-                        drive.rotateByPowers(-Ksqu_ROT * Math.signum(e_theta) * Math.sqrt(Math.abs(e_theta)));
+                        drive.rotateByPowers(Kp_ROT * e_theta);
+
+                        telemetry.addData("[M] Macro Stage", "ROTATION 1/2");
+                        telemetry.addData("[M > S] Theta Target Axis", approachRads);
+                        telemetry.addData("[M > S] Theta Error", e_theta);
                     } else {
                         // angle aligned
-                        drive.forwardByPowers(-Ksqu_TRANS * Math.sqrt(Math.abs(e_ds)));
+                        drive.forwardByPowers(Kp_TRANS * e_ds);
+
+                        telemetry.addData("[M] Macro Stage", "TRANSLATE");
+                        telemetry.addData("[M > S] X Target", macroTargetX);
+                        telemetry.addData("[M > S] Y Target", macroTargetY);
+                        telemetry.addData("[M > S] Displacement Error", e_ds);
                     }
 
                 } else if (Math.abs(e_theta) > MACRO_RADS_TOLERANCE) {
                     // rotation
-                    drive.rotateByPowers(Ksqu_ROT * Math.signum(e_theta) * Math.sqrt(Math.abs(e_theta)));
+                    drive.rotateByPowers(Kp_ROT * e_theta);
+
+                    telemetry.addData("[M] Macro Stage", "ROTATION 2/2");
+                    telemetry.addData("[M > S] Theta Target Axis", macroTargetRads);
+                    telemetry.addData("[M > S] Theta Error", e_theta);
                 } else {
                     macroActive = false;
                 }
 
-                telemetry.addData("e_theta", e_theta);
-                telemetry.addData("e_ds", e_ds);
-
-                telemetry.addData("macroTargetX", macroTargetX);
-                telemetry.addData("macroTargetY", macroTargetY);
-                telemetry.addData("macroTargetRads", macroTargetRads);
+                telemetry.addData("[M] macroTargetX", macroTargetX);
+                telemetry.addData("[M] macroTargetY", macroTargetY);
+                telemetry.addData("[M] macroTargetRads", macroTargetRads);
             }
 
             telemetry.addData("leftEnc", left.getCurrentPosition());
             telemetry.addData("rightEnc", right.getCurrentPosition());
             telemetry.update();
         }
+    }
+
+    private double backwardsCompatibleAngularError(double a, double b) {
+        double e_theta_1 = shortestAngularDifference(a, b);
+        double e_theta_2 = shortestAngularDifference(a + Math.PI, b);
+        return -((Math.abs(e_theta_1) < Math.abs(e_theta_2)) ? e_theta_1 : e_theta_2);
+    }
+
+    /**
+     * Returns the shortest angular difference of two angles. In other words,
+     * this method returns the only x in (-π, π] such that a + x is coterminal to b.
+     *
+     * Also known as SAD.
+     *
+     * @param a An angle in radians, the "from" value
+     * @param b An angle in radians, the "to" value
+     * @return The shortest angular difference of a and b
+     */
+    private double shortestAngularDifference(double a, double b) {
+        double diff = b - a;
+
+        diff = (diff + Math.PI) % (2 * Math.PI);
+        if (diff <= 0) {
+            diff += 2 * Math.PI;
+        }
+
+        return diff - Math.PI;
     }
 
 }
