@@ -46,18 +46,44 @@ public class Odom {
         int curRight = rightEncoder.getCurrentPosition();
         int curCenter = centerEncoder.getCurrentPosition();
 
-        int deltaLeftTicks = curLeft - lastLeft;
-        int deltaRightTicks = curRight - lastRight;
-        int deltaCenterTicks = curCenter - lastCenter;
+        int deltaLeftT = curLeft - lastLeft;
+        int deltaRightT = curRight - lastRight;
+        int deltaCenterT = curCenter - lastCenter;
 
         lastLeft = curLeft;
         lastRight = curRight;
         lastCenter = curCenter;
 
-        double deltaLeft = deltaLeftTicks / ticks_per_inch;
-        double deltaRight = deltaRightTicks / ticks_per_inch;
-        double deltaCenter = deltaCenterTicks / ticks_per_inch;
+        double deltaLeft = deltaLeftT / ticks_per_inch;
+        double deltaRight = deltaRightT / ticks_per_inch;
+        double deltaCenter = deltaCenterT / ticks_per_inch;
 
+        double deltaHeading = deltaRight - deltaLeft;
 
+        double deltaY = (deltaLeft + deltaRight) / 2.0;
+        double deltaX = deltaCenter;
+
+        heading += deltaHeading;
+
+        double sin = Math.sin(heading);
+        double cos = Math.cos(heading);
+
+        double fieldX = deltaX * cos - deltaY * sin;
+        double fieldY = deltaX * sin + deltaY * cos;
+
+        x += fieldX;
+        y += fieldY;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getHeading(){
+        return heading;
     }
 }
