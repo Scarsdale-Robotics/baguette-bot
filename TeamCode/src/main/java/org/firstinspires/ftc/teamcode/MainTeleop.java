@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -18,7 +17,7 @@ import org.firstinspires.ftc.teamcode.scaleOperators.Rescale;
 
 import java.util.List;
 
-@Config
+
 @TeleOp(name = "Baguette Teleop")
 public class MainTeleop extends LinearOpMode {
 
