@@ -42,7 +42,7 @@ public class MainTeleop extends LinearOpMode {
                         new Clamp(-LEFT_POWER_FACTOR, LEFT_POWER_FACTOR)
                 )
                 .build();
-        Motor right = new Motor.Builder(hardwareMap, "left")
+        Motor right = new Motor.Builder(hardwareMap, "right")
                 .setOperators(
                         new Rescale(RIGHT_POWER_FACTOR),
                         new Clamp(-RIGHT_POWER_FACTOR, RIGHT_POWER_FACTOR)
@@ -64,7 +64,7 @@ public class MainTeleop extends LinearOpMode {
         DcMotor forwardEncoder = hardwareMap.get(DcMotor.class, "forwardOdom");
 
         int lastForwardEnc = forwardEncoder.getCurrentPosition();
-//        double forwardEncoderOffset = 0, strafeEncoderOffset = 0;
+//       double forwardEncoderOffset = 0, strafeEncoderOffset = 0;
 
         DriveSubsystem drive = new DriveSubsystem(left, right);
 
