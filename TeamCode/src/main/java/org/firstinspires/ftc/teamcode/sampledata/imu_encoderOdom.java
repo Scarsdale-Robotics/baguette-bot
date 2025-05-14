@@ -17,6 +17,7 @@ public class imu_encoderOdom {
 
     private double d;
 
+    private double deltaHeading;
     private double lastheading;
     private double lastd;
 
@@ -42,7 +43,7 @@ public class imu_encoderOdom {
 
         double headingRad = getCurHeading();
         //im not rlly sure if i need deltaHeading cus i dont use it
-        double deltaHeading = headingRad - lastheading;
+        deltaHeading = headingRad - lastheading;
         lastheading = headingRad;
 
         double TICKS_PER_INCH = 1000; // update i forgor
@@ -51,7 +52,6 @@ public class imu_encoderOdom {
         x += deltaDistanceInInches * Math.cos(headingRad);
         y += deltaDistanceInInches * Math.sin(headingRad);
     }
-
 
     public double getCurHeading(){
         double rawHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -69,6 +69,6 @@ public class imu_encoderOdom {
         return y;
     }
 
-
+    public double getDeltaHeading(){return deltaHeading;}
 
 }
