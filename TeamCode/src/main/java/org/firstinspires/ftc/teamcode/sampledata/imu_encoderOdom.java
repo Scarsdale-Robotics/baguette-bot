@@ -17,14 +17,15 @@ public class imu_encoderOdom {
 
     private double d;
 
-    private double lastx;
-    private double lasty;
     private double lastheading;
     private double lastd;
 
-    public imu_encoderOdom(HardwareMap hm) {
+    public imu_encoderOdom(HardwareMap hm, double x1, double y1, double heading1) {
         centerEncoder = hm.get(DcMotor.class, "centerEncoder");
         imu = hm.get(IMU.class, "imu");
+        x = x1;
+        y= y1;
+        heading = heading1;
 
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
@@ -67,5 +68,7 @@ public class imu_encoderOdom {
     public double getY() {
         return y;
     }
+
+
 
 }

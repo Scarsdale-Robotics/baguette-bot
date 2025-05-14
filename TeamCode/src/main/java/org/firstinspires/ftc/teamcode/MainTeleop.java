@@ -21,8 +21,8 @@ import java.util.List;
 @TeleOp(name = "Baguette Teleop")
 public class MainTeleop extends LinearOpMode {
 
-    public static double LEFT_POWER_FACTOR = 1;
-    public static double RIGHT_POWER_FACTOR = 1;
+    public static double LEFT_POWER_FACTOR = 0.5;
+    public static double RIGHT_POWER_FACTOR = 0.5;
 
     public static double MACRO_RADS_TOLERANCE = 0.17;  // \pm 0.17 tolerance
     public static double MACRO_DISP_TOLERANCE = 2;  // \pm 2 inches (displacement)
