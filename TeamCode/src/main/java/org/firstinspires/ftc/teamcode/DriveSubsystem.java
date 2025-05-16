@@ -6,14 +6,14 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 public class DriveSubsystem {
 
-    Motor left, right;
+    DcMotor left, right;
 
     /**
      * Initializes a DriveSubsystem
      * @param left A left-side mounted DcMotor with positive power assumed as "forward"
      * @param right A right-side mounted DcMotor with positive power assumed as "forward"
      */
-    public DriveSubsystem(Motor left, Motor right) {
+    public DriveSubsystem(DcMotor left, DcMotor right) {
         this.left = left;
         this.right = right;
     }

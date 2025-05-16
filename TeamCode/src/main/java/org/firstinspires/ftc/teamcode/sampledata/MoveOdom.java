@@ -4,11 +4,15 @@ import static org.firstinspires.ftc.teamcode.MainTeleop.LEFT_POWER_FACTOR;
 import static org.firstinspires.ftc.teamcode.MainTeleop.RIGHT_POWER_FACTOR;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.Motor;
 import org.firstinspires.ftc.teamcode.scaleOperators.Clamp;
 import org.firstinspires.ftc.teamcode.scaleOperators.Rescale;
+
+@TeleOp(name = "sidfsdf")
 
 public class MoveOdom extends LinearOpMode {
 
@@ -18,32 +22,23 @@ public class MoveOdom extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         odom =  new imu_encoderOdom(hardwareMap, 0,0,0);
-        Motor left = new Motor.Builder(hardwareMap, "left")
-                .setOperators(
-                        new Rescale(LEFT_POWER_FACTOR),
-                        new Clamp(-LEFT_POWER_FACTOR, LEFT_POWER_FACTOR)
-                )
-                .build();
-        Motor right = new Motor.Builder(hardwareMap, "right")
-                .setOperators(
-                        new Rescale(RIGHT_POWER_FACTOR),
-                        new Clamp(-RIGHT_POWER_FACTOR, RIGHT_POWER_FACTOR)
-                )
-                .invert()
-                .build();
+        DcMotor left = hardwareMap.get(DcMotor.class, "left");
+        DcMotor right = hardwareMap.get(DcMotor.class, "right");
 
 
 
+        waitForStart();
 
         drive = new DriveSubsystem(left, right);
         while (opModeIsActive()){
             odom.update();
             double leftPower = gamepad1.left_stick_y * LEFT_POWER_FACTOR;
-            double rightPower = gamepad1.right_stick_y * RIGHT_POWER_FACTOR;
+            double rightPower = -gamepad1.right_stick_y * RIGHT_POWER_FACTOR;
             drive.motorsByPowers(leftPower, rightPower);
-            telemetry.addLine("x: " + odom.getX());
-            telemetry.addLine("y: " + odom.getY());
-            telemetry.addLine("Heading " + odom.getCurHeading());
+            telemetry.addData("x", odom.getX());
+            telemetry.addData("y", odom.getY());
+            telemetry.addData("Heading", odom.getCurHeading());
+            telemetry.update();
         }
     }
 }

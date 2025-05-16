@@ -36,19 +36,8 @@ public class MainTeleop extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Motor left = new Motor.Builder(hardwareMap, "left")
-                .setOperators(
-                        new Rescale(LEFT_POWER_FACTOR),
-                        new Clamp(-LEFT_POWER_FACTOR, LEFT_POWER_FACTOR)
-                )
-                .build();
-        Motor right = new Motor.Builder(hardwareMap, "right")
-                .setOperators(
-                        new Rescale(RIGHT_POWER_FACTOR),
-                        new Clamp(-RIGHT_POWER_FACTOR, RIGHT_POWER_FACTOR)
-                )
-                .invert()
-                .build();
+        DcMotor left = hardwareMap.get(DcMotor.class, "left");
+        DcMotor right = hardwareMap.get(DcMotor.class, "right");
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100);
