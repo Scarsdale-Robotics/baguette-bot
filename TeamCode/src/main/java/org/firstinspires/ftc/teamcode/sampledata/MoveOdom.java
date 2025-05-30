@@ -61,7 +61,7 @@ public class MoveOdom extends LinearOpMode {
             apriltagUpdate();
 
             double leftPower = gamepad1.left_stick_y * LEFT_POWER_FACTOR;
-            double rightPower = gamepad1.right_stick_y * RIGHT_POWER_FACTOR;
+            double rightPower = -gamepad1.right_stick_y * RIGHT_POWER_FACTOR;
             drive.motorsByPowers(leftPower, rightPower);
 
             triangle = gamepad1.triangle;
