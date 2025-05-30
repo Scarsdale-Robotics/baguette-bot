@@ -21,7 +21,7 @@ public class imu_encoderOdom {
     private double lastheading;
     private double lastd;
 
-    public imu_encoderOdom(HardwareMap hm, double x1, double y1, double heading1) {
+    public imu_encoderOdom(HardwareMap hm, double x1, double y1, double heading1){
         centerEncoder = hm.get(DcMotor.class, "centerEncoder");
         imu = hm.get(IMU.class, "imu");
         x = x1;
@@ -56,7 +56,7 @@ public class imu_encoderOdom {
     public double getCurHeading(){
         double rawHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         heading = rawHeading + Math.PI/2;
-        //heading i think should only be between 0 and pi
+        //heading i think should only be between -pi and pi
         heading = Math.atan2(Math.sin(heading), Math.cos(heading));
         return heading;
     }
@@ -70,5 +70,7 @@ public class imu_encoderOdom {
     }
 
     public double getDeltaHeading(){return deltaHeading;}
+
+    public double getEncoderPosition() {return centerEncoder.getCurrentPosition();}
 
 }

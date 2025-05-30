@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.sampledata;
 import static org.firstinspires.ftc.teamcode.MainTeleop.LEFT_POWER_FACTOR;
 import static org.firstinspires.ftc.teamcode.MainTeleop.RIGHT_POWER_FACTOR;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -12,7 +14,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.Motor;
 
 import java.util.List;
 
@@ -23,14 +24,23 @@ public class MoveOdom extends LinearOpMode {
     DriveSubsystem drive;
     Limelight3A limelight;
 
+
     double[] apriltagvals;
     private int detectionCount = 0;
     private boolean triangle;
-    private DcMotor left = hardwareMap.get(DcMotor.class, "left");
-    private DcMotor right = hardwareMap.get(DcMotor.class, "right");
+    private Kolman kolman;
+
+    private DcMotor left;
+    private DcMotor right;
+
 
     public void runOpMode() throws InterruptedException {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         odom = new imu_encoderOdom(hardwareMap, 0, 0, 0);
+
+
+        left = hardwareMap.get(DcMotor.class, "left");
+        right = hardwareMap.get(DcMotor.class, "right");
 
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -39,6 +49,8 @@ public class MoveOdom extends LinearOpMode {
 
         drive = new DriveSubsystem(left, right);
         apriltagvals = new double[3]; // [x, y, heading]
+        kolman = new Kolman(0, odom, limelight);
+
 
 
         waitForStart();
@@ -54,7 +66,7 @@ public class MoveOdom extends LinearOpMode {
 
             triangle = gamepad1.triangle;
             if(triangle && gamepad1.triangle ){
-                //
+                turn((Math.PI/2), true);
             }
 
             // Odom Telemetry
@@ -63,11 +75,16 @@ public class MoveOdom extends LinearOpMode {
             telemetry.addData("Y", odom.getY());
             telemetry.addData("Heading", odom.getCurHeading());
 
-            // at Telemetry
+            // AprilTag Telemetry
             telemetry.addLine("--- AprilTag Telemetry ---");
             telemetry.addData("# Tags", detectionCount);
             telemetry.addData("X", apriltagvals[0]);
             telemetry.addData("Y", apriltagvals[1]);
+
+            // Kolman
+            telemetry.addLine("--- Kolman Telemetry ---");
+            telemetry.addData("Distance", kolman.getPosition());
+            kolman.updateKF();
 
 
             telemetry.update();
@@ -105,8 +122,10 @@ public class MoveOdom extends LinearOpMode {
         double targetHeading = direction ? startHeading + radians : startHeading - radians;
 
         // Is this the right math ????
-        if (targetHeading > Math.PI) targetHeading -= Math.PI;
-        if (targetHeading < 0) targetHeading += Math.PI;
+
+        //targetHeading = Math.atan2(Math.sin(targetHeading), Math.cos(targetHeading));
+       // if (targetHeading > Math.PI) targetHeading -= 2*Math.PI;
+        //if (targetHeading < 0) targetHeading += 2*Math.PI;
 
         // TUNE (i think)
         double kP = 2.0;
@@ -131,26 +150,28 @@ public class MoveOdom extends LinearOpMode {
 
             double output = kP * error + kD * derivative;
 
-            // set motor power
-            if (output > 0.1) {
-                left.setPower(1);
-                right.setPower(-1);
-            } else if (output < -0.1) {
-                left.setPower(-1);
-                right.setPower(1);
-            } else {
-                left.setPower(0);
-                right.setPower(0);
+            if(direction){
+                left.setPower(-output);
+                right.setPower(output);
+            }else{
+                left.setPower(output);
+                right.setPower(-output);
             }
+
+            // set motor power
+            //if (output > 0.1) {
+            //left.setPower(1);
+            //right.setPower(-1);
+            //} else if (output < -0.1) {
+            //left.setPower(-1);
+            //right.setPower(1);
+            //} else {
+            //left.setPower(0);
+            //right.setPower(0);
+            //}
 
             prevError = error;
             prevTime = currentTime;
-
-            telemetry.addData("Current", currentHeading);
-            telemetry.addData("Target", targetHeading);
-            telemetry.addData("Error", error);
-            telemetry.addData("Output", output);
-            telemetry.update();
 
         }
 
