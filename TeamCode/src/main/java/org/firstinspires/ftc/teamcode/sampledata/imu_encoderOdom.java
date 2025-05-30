@@ -22,7 +22,7 @@ public class imu_encoderOdom {
     private double lastd;
 
     public imu_encoderOdom(HardwareMap hm, double x1, double y1, double heading1){
-        centerEncoder = hm.get(DcMotor.class, "centerEncoder");
+        centerEncoder = hm.get(DcMotor.class, "forwardOdom");
         imu = hm.get(IMU.class, "imu");
         x = x1;
         y= y1;

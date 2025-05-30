@@ -144,7 +144,7 @@ public class MainTeleop extends LinearOpMode {
             ///////////
 
             double leftPower = gamepad1.left_stick_y * LEFT_POWER_FACTOR;
-            double rightPower = gamepad1.right_stick_y * RIGHT_POWER_FACTOR;
+            double rightPower = -gamepad1.right_stick_y * RIGHT_POWER_FACTOR;
 
             if (Math.abs(leftPower) + Math.abs(rightPower) > 0)
                 macroActive = false;
